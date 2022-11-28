@@ -109,12 +109,50 @@ async function run() {
       const result = await categoriesCollection.find(query).toArray();
       res.send(result);
     });
+    // post product objects to database
+    app.post("/products", async (req, res) => {
+      const product = req.body;
+      const result = await productsCollection.insertOne(product);
+      res.send(result);
+    });
+
+    // delete product by seller
+    app.delete("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await productsCollection.deleteOne(filter);
+      res.send(result);
+    });
+
     // get products by its category
     app.get("/category/:id", async (req, res) => {
       const id = req.params.id;
       const query = { category_id: id };
       const categoryProduct = await productsCollection.find(query).toArray();
       res.send(categoryProduct);
+    });
+
+    // get specific product collection of seller
+    app.get("/myproducts/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { sellerEmail: email };
+      const result = await productsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // post bookings collection
+    app.post("/bookings", async (req, res) => {
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking);
+      res.send(result);
+    });
+
+    // get bookings data by email for specific buyer
+    app.get("/bookings/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { buyerEmail: email };
+      const result = await bookingsCollection.find(query).toArray();
+      res.send(result);
     });
   } finally {
   }
