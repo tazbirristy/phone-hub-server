@@ -19,7 +19,8 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const usersCollections = client.db("phoneHub").collection("users");
-    const categoriesCollection = client.db("carHut").collection("categories");
+    const categoriesCollection = client.db("phoneHub").collection("categories");
+    const productsCollection = client.db("phoneHub").collection("products");
 
     // user collection api
     app.put("/user/:email", async (req, res) => {
@@ -36,6 +37,20 @@ async function run() {
         options
       );
       res.send(result);
+    });
+
+    // product categories
+    app.get("/categories", async (req, res) => {
+      const query = {};
+      const result = await categoriesCollection.find(query).toArray();
+      res.send(result);
+    });
+    // get products by its category
+    app.get("/category/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { category_id: id };
+      const categoryProduct = await productsCollection.find(query).toArray();
+      res.send(categoryProduct);
     });
   } finally {
   }
