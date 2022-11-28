@@ -38,6 +38,13 @@ async function run() {
       );
       res.send(result);
     });
+    // Admin api for dashboard
+    app.get("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollections.findOne(query);
+      res.send({ isAdmin: user?.role === "admin" });
+    });
 
     // product categories
     app.get("/categories", async (req, res) => {
