@@ -116,6 +116,19 @@ async function run() {
       res.send(result);
     });
 
+    // post advertises collection
+    app.post("/promotions", async (req, res) => {
+      const advertise = req.body;
+      const result = await promotionsCollection.insertOne(advertise);
+      res.send(result);
+    });
+    // get advertises collection
+    app.get("/promotions", async (req, res) => {
+      const query = {};
+      const result = await promotionsCollection.find(query).toArray();
+      res.send(result);
+    });
+
     // delete product by seller
     app.delete("/products/:id", async (req, res) => {
       const id = req.params.id;
