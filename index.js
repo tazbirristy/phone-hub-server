@@ -21,6 +21,9 @@ async function run() {
     const usersCollections = client.db("phoneHub").collection("users");
     const categoriesCollection = client.db("phoneHub").collection("categories");
     const productsCollection = client.db("phoneHub").collection("products");
+    const bookingsCollection = client.db("phoneHub").collection("bookings");
+    const wishlistsCollection = client.db("phoneHub").collection("wishlists");
+    const promotionsCollection = client.db("phoneHub").collection("promotions");
 
     // user collection api
     app.put("/user/:email", async (req, res) => {
@@ -51,6 +54,26 @@ async function run() {
       const query = { email };
       const user = await usersCollections.findOne(query);
       res.send({ isSeller: user?.role === "seller" });
+    });
+
+    // seller verification
+    app.post("/verification", async (req, res) => {
+      const verification = req.body;
+      const email = verification.email;
+      const filter = { sellerEmail: email };
+      const updatedDoc = {
+        $set: {
+          verified: true,
+        },
+      };
+      const updatedProducts = await productsCollection.updateMany(
+        filter,
+        updatedDoc
+      );
+      const updatedResult = await usersCollections.updateOne(
+        { email: verification.email },
+        updatedDoc
+      );
     });
 
     // product categories
