@@ -19,6 +19,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const usersCollections = client.db("phoneHub").collection("users");
+    const categoriesCollection = client.db("carHut").collection("categories");
 
     // user collection api
     app.put("/user/:email", async (req, res) => {
