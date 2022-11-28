@@ -76,6 +76,12 @@ async function run() {
       );
     });
 
+    // get sellers and buyers
+    app.get("/sellers", async (req, res) => {
+      const result = await usersCollections.find({ role: "seller" }).toArray();
+      res.send(result);
+    });
+
     // product categories
     app.get("/categories", async (req, res) => {
       const query = {};
