@@ -82,6 +82,27 @@ async function run() {
       res.send(result);
     });
 
+    // delete single seller
+    app.delete("/sellers/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await usersCollections.deleteOne(filter);
+      res.send(result);
+    });
+    // delete single buyers
+    app.delete("/buyers/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await usersCollections.deleteOne(filter);
+      res.send(result);
+    });
+
+    // get buyers
+    app.get("/buyers", async (req, res) => {
+      const result = await usersCollections.find({ role: "buyer" }).toArray();
+      res.send(result);
+    });
+
     // product categories
     app.get("/categories", async (req, res) => {
       const query = {};
