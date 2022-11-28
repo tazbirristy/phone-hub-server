@@ -154,6 +154,20 @@ async function run() {
       const result = await bookingsCollection.find(query).toArray();
       res.send(result);
     });
+
+    // post wishlist collection
+    app.put("/wishlists", async (req, res) => {
+      const wishlist = req.body;
+      const result = await wishlistsCollection.insertOne(wishlist);
+      res.send(result);
+    });
+    // get wishlist data by email for specific buyer
+    app.get("/wishlists/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { buyerEmail: email };
+      const result = await wishlistsCollection.find(query).toArray();
+      res.send(result);
+    });
   } finally {
   }
 }
