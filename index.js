@@ -3,6 +3,7 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
 const port = process.env.PORT || 5000;
 
 const app = express();
@@ -41,6 +42,7 @@ async function run() {
     const bookingsCollection = client.db("phoneHub").collection("bookings");
     const wishlistsCollection = client.db("phoneHub").collection("wishlists");
     const promotionsCollection = client.db("phoneHub").collection("promotions");
+    const paymentsCollection = client.db("carHut").collection("payments");
 
     // jwt token
     app.get("/jwt", async (req, res) => {
@@ -87,6 +89,49 @@ async function run() {
       const query = { email };
       const user = await usersCollections.findOne(query);
       res.send({ isSeller: user?.role === "seller" });
+    });
+
+    // stripe payment
+    app.post("/create-payment-intent", async (req, res) => {
+      const booking = req.body;
+      const price = booking.sealingPrice;
+      const amount = price * 100;
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        currency: "usd",
+        amount: amount,
+        payment_method_types: ["card"],
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+
+    // payments collection
+    app.post("/payments", verifyJWT, async (req, res) => {
+      const payment = req.body;
+      const result = await paymentsCollection.insertOne(payment);
+      const id = payment.bookingId;
+      const filter = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          paid: true,
+          transactionId: payment.transactionId,
+        },
+      };
+      const updatedResult = await bookingsCollection.updateOne(
+        filter,
+        updatedDoc
+      );
+      const updatedProduct = await productsCollection.updateOne(
+        { _id: ObjectId(payment.productId) },
+        updatedDoc
+      );
+      const updatedAdvertise = await promotionsCollection.updateOne(
+        { productId: payment.productId },
+        updatedDoc
+      );
+      res.send(result);
     });
 
     // seller verification
