@@ -42,7 +42,7 @@ async function run() {
     const bookingsCollection = client.db("phoneHub").collection("bookings");
     const wishlistsCollection = client.db("phoneHub").collection("wishlists");
     const promotionsCollection = client.db("phoneHub").collection("promotions");
-    const paymentsCollection = client.db("carHut").collection("payments");
+    const paymentsCollection = client.db("phoneHub").collection("payments");
 
     // jwt token
     app.get("/jwt", async (req, res) => {
@@ -247,6 +247,14 @@ async function run() {
       const query = { buyerEmail: email };
       const result = await bookingsCollection.find(query).toArray();
       res.send(result);
+    });
+
+    // get bookings for payment
+    app.get("/booking/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const booking = await bookingsCollection.findOne(query);
+      res.send(booking);
     });
 
     // post wishlist collection
